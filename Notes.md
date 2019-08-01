@@ -546,3 +546,204 @@ FROM
 ORDER BY
   SKU;
 ```
+* `RTX_SORTNO`是一个视图。
+
+## Example 10
+```SQL
+--按SKU合计数量
+SELECT 
+  SKU,
+  SUM(QTY) AS 合计
+FROM 
+  LOTXLOCXID T 
+WHERE 
+  QTY > 0 AND 
+  STATUS = 'OK'
+GROUP BY
+  SKU
+ORDER BY 
+  SKU;
+```
+```SQL
+--按款式合计数量
+SELECT 
+  S.STYLE 款式,
+  SUM(LLI.QTY) AS 合计数量
+FROM 
+  LOTXLOCXID LLI,
+  SKU S
+WHERE 
+  LLI.SKU = S.SKU AND
+  LLI.QTY > 0 AND 
+  LLI.STATUS = 'OK'
+GROUP BY
+  S.STYLE
+ORDER BY 
+  S.STYLE;
+```
+
+## Example 11
+```SQL
+SELECT 
+  S.STYLE 款号,
+  MT.SKU 货品,
+  MT.STORERKEY 货主,
+  MT.FROMLOC 自库位,
+  MT.TOLOC 至库位,
+  MT.LOT 批次,
+  MT.QTY 返架数量,
+  DECODE(MT.STATUS,'10','扫描中','已返架') 状态,
+  OE.FULLY_QUALIFIED_ID 用户,
+  TO_CHAR(MT.EDITDATE+8/24,'YYYY-MM-DD HH24:MI:SS') 操作时间 
+FROM 
+  MANYMOVE_TBL MT,
+  OPER.E_SSO_USER OE,
+  SKU S 
+WHERE 
+  UPPER(OE.SSO_USER_NAME)=UPPER(MT.EDITWHO) AND 
+  MT.SKU=S.SKU 
+ORDER BY 
+  TO_CHAR(MT.EDITDATE+8/24,'YYYY-MM-DD HH24:MI:SS') DESC;
+```
+* 用户的登录ID和姓名存储在`OPER.E_SSO_USER`表中，其中，`SSO_USER_NAME`为登录账户，`FULLY_QUALIFIED_ID`为用户全名。
+* 比较的时候要注意，PL/SQL的字符串比较是大小写敏感的，因此在多表连接比较操作人ID时应当注意全部转化为大写再进行比较。如如上过滤条件中`UPPER(OE.SSO_USER_NAME)=UPPER(MT.EDITWHO)`这样写。
+
+## Example 12
+```SQL
+--库存事务页面信息对应ITRN表
+--统计一个月前至今的库存转移量（THFLLOC→状态为OK的零拣位）
+(
+SELECT 
+  TO_CHAR(IT.EFFECTIVEDATE+8/24, 'YYYY-MM-DD')||' 小计' 日期,
+  NULL 货品SKU,
+  NULL 批号LOT,
+  NULL 自库位,
+  NULL 至库位,
+  NULL 用户,
+  SUM(IT.QTY) 数量
+FROM
+  ITRN IT,
+  LOC L
+WHERE
+  TO_CHAR(IT.EFFECTIVEDATE+8/24, 'YYYY-MM-DD') >= TO_CHAR(ADD_MONTHS(TRUNC(SYSDATE),-1),'YYYY-MM-DD') AND
+  TO_CHAR(IT.EFFECTIVEDATE+8/24, 'YYYY-MM-DD') <= TO_CHAR(SYSDATE,'YYYY-MM-DD') AND
+  IT.FROMLOC = 'THFLLOC' AND
+  IT.TOLOC = L.LOC AND
+  L.LOCATIONTYPE = 'PICK' AND
+  L.STATUS = 'OK'
+GROUP BY TO_CHAR(IT.EFFECTIVEDATE+8/24, 'YYYY-MM-DD')
+)
+UNION
+SELECT * FROM
+(
+SELECT
+  --TO_CHAR(IT.EFFECTIVEDATE+8/24, 'YYYY-MM-DD HH24:MI:SS') 日期,
+  TO_CHAR(IT.EFFECTIVEDATE+8/24, 'YYYY-MM-DD') 日期,
+  IT.SKU 货品SKU,
+  IT.LOT 批号LOT,
+  IT.FROMLOC 自库位,
+  IT.TOLOC 至库位,
+  OE.FULLY_QUALIFIED_ID 用户,
+  IT.QTY 数量
+FROM
+  ITRN IT,
+  LOC L,
+  OPER.E_SSO_USER OE
+WHERE
+  --从一个月前开始统计
+  TO_CHAR(IT.EFFECTIVEDATE+8/24, 'YYYY-MM-DD') >= TO_CHAR(ADD_MONTHS(TRUNC(SYSDATE),-1),'YYYY-MM-DD') AND
+  --到系统时间
+  TO_CHAR(IT.EFFECTIVEDATE+8/24, 'YYYY-MM-DD') <= TO_CHAR(SYSDATE,'YYYY-MM-DD') AND
+  IT.FROMLOC = 'THFLLOC' AND
+  IT.TOLOC = L.LOC AND
+  L.LOCATIONTYPE = 'PICK' AND
+  L.STATUS = 'OK' AND
+  UPPER(IT.ADDWHO) = UPPER(OE.SSO_USER_NAME)
+ORDER BY 
+  TO_CHAR(IT.EFFECTIVEDATE+8/24, 'YYYY-MM-DD HH24:MI:SS'),
+  --TO_CHAR(IT.EFFECTIVEDATE+8/24, 'YYYY-MM-DD'),
+  IT.SKU,
+  IT.LOT,
+  IT.FROMLOC,
+  IT.TOLOC,
+  OE.FULLY_QUALIFIED_ID,
+  IT.QTY
+)
+UNION
+(
+SELECT 
+  '合计' 日期,
+  NULL 货品SKU,
+  NULL 批号LOT,
+  NULL 自库位,
+  NULL 至库位,
+  NULL 用户,
+  SUM(IT.QTY) 数量
+FROM
+  ITRN IT,
+  LOC L
+WHERE
+  TO_CHAR(IT.EFFECTIVEDATE+8/24, 'YYYY-MM-DD') >= TO_CHAR(ADD_MONTHS(TRUNC(SYSDATE),-1),'YYYY-MM-DD') AND
+  TO_CHAR(IT.EFFECTIVEDATE+8/24, 'YYYY-MM-DD') <= TO_CHAR(SYSDATE,'YYYY-MM-DD') AND
+  IT.FROMLOC = 'THFLLOC' AND
+  IT.TOLOC = L.LOC AND
+  L.LOCATIONTYPE = 'PICK' AND
+  L.STATUS = 'OK'
+)
+```
+*   `union`用的比较多，`union all`是直接连接，取到的是所有值，记录可能有重复。   `union` 是取唯一值，记录没有重复。
+* `UNION`的语法如下：
+```SQL
+	[SQL Statement 1]
+	UNION
+	[SQL Statement 2]  
+```    
+* `UNION ALL`的语法如下：
+```SQL
+	[SQL Statement 1]
+	UNION ALL
+	[SQL Statement 2]
+```
+* 对重复结果的处理：UNION在进行表链接后会筛选掉重复的记录，Union All不会去除重复记录。对排序的处理：Union将会按照字段的顺序进行排序；UNION ALL只是简单的将两个结果合并后就返回。
+
+
+* 多语句`UNION`时，报错未正确结束。原因是在每个语句尾部都有`ORDER BY`子句，而规定在Oracle PL/SQL中，`ORDER BY`子句必须是`SELECT`语句的最后一个语句，且一个`SELECT`语句中只允许出现一个`ORDER BY`语句，同时，`ORDER BY`子句必须位于**整个**`SELECT`语句的最末尾。
+* 如上问题的解决方法： 
+    1. 将结果集作为一张临时表，再对其查询、排序。
+    ```SQL
+		SELECT * FROM (…… UNION ……) ORDER BY ………
+	```
+	2. 排序后再合并。
+    ```SQL
+		SELECT * FROM (SELECT …… FROM …… ORDER BY ……)
+		UNION
+		SELECT * FROM (SELECT …… FROM …… ORDER BY ……)
+	```
+	3. ORDER BY + 字段在结果集中的序号。
+	```SQL
+		SELECT ……
+		UNION
+		SELECT ……
+		ORDER BY 1,2
+	```
+
+## Example 13
+```SQL
+--库存中所有零拣位状态为OK的库存
+SELECT 
+  LLI.SKU,
+  SUM(LLI.QTY) AS 合计
+FROM 
+  LOTXLOCXID LLI,
+  LOC L 
+WHERE 
+  LLI.QTY > 0 AND 
+  LLI.STATUS = 'OK' AND
+  LLI.LOC = L.LOC AND
+  L.LOCATIONTYPE = 'PICK' 
+GROUP BY
+  LLI.SKU
+ORDER BY 
+  LLI.SKU;
+```
+
