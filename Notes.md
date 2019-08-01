@@ -829,17 +829,17 @@ ORDER BY
 
 |          日期说明           |         Oracle语句（假设现在是2018-11-28 11:11:11）          |      返回日期       |
 | :-------------------------: | :----------------------------------------------------------: | :-----------------: |
-|         当月第一天          |          select trunc(sysdate, ‘mm’)   from   dual           |      2018-11-1      |
-|         当年第一天          |             select trunc(sysdate,‘yy’) from dual             |      2018-1-1       |
-|         当前年月日          |             select trunc(sysdate,‘dd’) from dual             |     2018-11-28      |
-| 当前星期的第一天 （星期天） |             select trunc(sysdate,‘d’) from dual              |     2018-11-28      |
-|          当前日期           |               select trunc(sysdate) from dual                |     2018-11-28      |
-|   当前时间（准确到小时）    |            select trunc(sysdate, ‘hh’) from dual             | 2018-11-28 11:00:00 |
-|   当前时间（准确到分钟）    | select to_char(trunc(sysdate, ‘mi’),‘yyyy-MM-dd HH:mm:ss’) from dual | 2018-11-28 11:11:00 |
-|        前一天的日期         |            select TRUNC(SYSDATE - 1)   from dual             |     2018-11-27      |
-|       前一个月的日期        |        select add_months(trunc(sysdate),-1) from dual        |     2018-10-28      |
-|       后一个月的日期        |        select add_months(trunc(sysdate),1) from dual         |     2018-12-28      |
-|        本月最后一天         |  select to_char(last_day(sysdate), ‘yyyy-mm-dd’) from dual   |     2018-11-30      |
+|         当月第一天          |         `select trunc(sysdate, ‘mm’)   from   dual`          |      2018-11-1      |
+|         当年第一天          |            `select trunc(sysdate,‘yy’) from dual`            |      2018-1-1       |
+|         当前年月日          |            `select trunc(sysdate,‘dd’) from dual`            |     2018-11-28      |
+| 当前星期的第一天 （星期天） |            `select trunc(sysdate,‘d’) from dual`             |     2018-11-28      |
+|          当前日期           |              `select trunc(sysdate) from dual`               |     2018-11-28      |
+|   当前时间（准确到小时）    |           `select trunc(sysdate, ‘hh’) from dual`            | 2018-11-28 11:00:00 |
+|   当前时间（准确到分钟）    | `select to_char(trunc(sysdate, ‘mi’),‘yyyy-MM-dd HH:mm:ss’) from dual` | 2018-11-28 11:11:00 |
+|        前一天的日期         |           `select TRUNC(SYSDATE - 1)   from dual`            |     2018-11-27      |
+|       前一个月的日期        |       `select add_months(trunc(sysdate),-1) from dual`       |     2018-10-28      |
+|       后一个月的日期        |       `select add_months(trunc(sysdate),1) from dual`        |     2018-12-28      |
+|        本月最后一天         | `select to_char(last_day(sysdate), ‘yyyy-mm-dd’) from dual`  |     2018-11-30      |
 
 
 
