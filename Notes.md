@@ -484,7 +484,7 @@ ORDER BY
   OD.ORDERKEY，
   --OD.RTXCANCELMARK,
   SUBSTR(OD.EXTERNORDERKEY,3),
-  DECODE(NVL(OD.RTXSHOPNAME, ' '), ' ', OD.C_COMPANY, OD.RTXSHOPNAME)
+  DECODE(NVL(OD.RTXSHOPNAME, ' '), ' ', OD.C_COMPANY, OD.RTXSHOPNAME);
 ```
 * `substr()`函数
 `substr()`函数有如下两种格式：
@@ -495,15 +495,54 @@ ORDER BY
   *  `substr(string string, int a);`
         * string 需要截取的字符串
         * 可以理解为从第a个字符开始截取后面所有的字符串。
+* **实例解析**
 ``` SQL
-select substr('HelloWorld',0,3) value from dual; //返回结果：Hel，截取从“H”开始3个字符
-select substr('HelloWorld',1,3) value from dual; //返回结果：Hel，截取从“H”开始3个字符
-select substr('HelloWorld',2,3) value from dual; //返回结果：ell，截取从“e”开始3个字符
-select substr('HelloWorld',0,100) value from dual; //返回结果：HelloWorld，100虽然超出预处理的字符串最长度，但不会影响返回结果，系统按预处理字符串最大数量返回。
-select substr('HelloWorld',5,3) value from dual; //返回结果：oWo
-select substr('Hello World',5,3) value from dual; //返回结果：o W (中间的空格也算一个字符串，结果是：o空格W)
-select substr('HelloWorld',-1,3) value from dual; //返回结果：d （从后面倒数第一位开始往后取1个字符，而不是3个。原因：下面红色 第三个注解）
-select substr('HelloWorld',-2,3) value from dual; //返回结果：ld （从后面倒数第二位开始往后取2个字符，而不是3个。原因：下面红色 第三个注解）
-select substr('HelloWorld',-3,3) value from dual; //返回结果：rld （从后面倒数第三位开始往后取3个字符）
-select substr('HelloWorld',-4,3) value from dual; //返回结果：orl （从后面倒数第四位开始往后取3个字符）
+	select substr('HelloWorld',0,3) value from dual; 
+	//返回结果：Hel，截取从“H”开始3个字符
+	select substr('HelloWorld',1,3) value from dual; 
+	//返回结果：Hel，截取从“H”开始3个字符
+	select substr('HelloWorld',2,3) value from dual; 
+	//返回结果：ell，截取从“e”开始3个字符
+	select substr('HelloWorld',0,100) value from dual; 
+	//返回结果：HelloWorld，100虽然超出预处理的字符串最长度，但不会影响返回结果，系统按预处理字符串最大数量返回。
+	select substr('HelloWorld',5,3) value from dual; 
+	//返回结果：oWo
+	select substr('Hello World',5,3) value from dual; 
+	//返回结果：o W (中间的空格也算一个字符串，结果是：o空格W)
+	select substr('HelloWorld',-1,3) value from dual; 
+	//返回结果：d （从后面倒数第一位开始往后取1个字符，而不是3个。原因：下面红色 第三个注解）
+	select substr('HelloWorld',-2,3) value from dual; 
+	//返回结果：ld （从后面倒数第二位开始往后取2个字符，而不是3个。原因：下面红色 第三个注解）
+	select substr('HelloWorld',-3,3) value from dual; 
+	//返回结果：rld （从后面倒数第三位开始往后取3个字符）
+	select substr('HelloWorld',-4,3) value from dual; 
+	//返回结果：orl （从后面倒数第四位开始往后取3个字符）
+	select substr('HelloWorld',0) value from dual;  
+	//返回结果：HelloWorld，截取所有字符
+	select substr('HelloWorld',1) value from dual;  
+	//返回结果：HelloWorld，截取所有字符
+	select substr('HelloWorld',2) value from dual;  
+	//返回结果：elloWorld，截取从“e”开始之后所有字符
+	select substr('HelloWorld',3) value from dual;  
+	//返回结果：lloWorld，截取从“l”开始之后所有字符
+	select substr('HelloWorld',-1) value from dual;  
+	//返回结果：d，从最后一个“d”开始 往回截取1个字符
+	select substr('HelloWorld',-2) value from dual;  
+	//返回结果：ld，从最后一个“d”开始 往回截取2个字符
+	select substr('HelloWorld',-3) value from dual;  
+	//返回结果：rld，从最后一个“d”开始 往回截取3个字符
+```
+
+## Example 09
+```SQL
+SELECT 
+  SKU 货品SKU,
+  LOC 库位,
+  FIRSTNO 一级分理编号,
+  SECONDNO 二级分理编号,
+  DECODE(STATUS,'0','未下发','1','已下发') 状态
+FROM 
+  RTX_SORTNO
+ORDER BY
+  SKU;
 ```
