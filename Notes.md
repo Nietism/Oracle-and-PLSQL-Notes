@@ -1,10 +1,49 @@
-# SQL 学习笔记
+# 学习笔记
 
 ![Oracle 图标](https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1564591842751&di=3cb0b9bc69df78d08816abe6101c7fc1&imgtype=0&src=http%3A%2F%2Fwww.soomal.com%2Fimages%2Fdoc%2F20110713%2F00012096.jpg "Oracle logo")
 
-## Example 01
+## 基础知识
+
+### 第1章 基础知识
+
+#### 1.1 数据库基础
+
+##### 1.1.1 什么是数据库
+
+&#160; &#160; &#160; &#160;**数据库**（Database）指<u>以某种有组织的方式存储的数据集合</u>。可以将它看成一个档案柜，档案柜只是存储数据的物理位置，而不管数据是什么以及它们是怎样组织的。
+
+> **数据库**
+>
+>  用于存储有组织的数据的容器（通常是文件或文件集）。
+
+> **混淆**
+>
+> 人们经常使用**数据库**（Database）这个词来指代它们正在运行的数据库软件。这是不正确的。数据库软件实际上被称为**数据库管理系统**（Database Management System, DBMS）。数据库是通过DBMS创建和操作额容器。数据库可能是存储在硬盘驱动器上的文件，也可能不是。一般而言，这并不重要，因为用户从不会以任何方式直接访问数据库，用户总是使用DBMS，通过它来为用户访问数据库。
+
+##### 1.1.2 表
+
+&#160; &#160; &#160; &#160;当在档案柜中存储信息时，不会把信息简单地扔进抽屉里。相反，将在档案柜里创建文件，然后把相关的数据归档在特定的文件中。
+
+&#160; &#160; &#160; &#160;在数据库世界里，这个文件称之为**表**（Table）。表是<u>结构化的文件，可以存储特定类型的数据</u>。表可能包括顾客列表、产品目录，或者其他人的信息列表。
+
+> **表**
+>
+> 特定类型数据的结构化列表。
+
+&#160; &#160; &#160; &#160;这里的关键是：存储在表中的数据是一种数据类型或者一份列表。永远不会有人把顾客列表和订单列表存储在同一张数据库表中。如果这样做，将使得之后的检索和访问难以进行。正常情况是，你将创建两张表，每个表用于存储一份列表。
+
+&#160; &#160; &#160; &#160;数据库中的每一个表都具有一个用于标识它的名称，这个名称总是唯一的，意味着该数据库中没有其他的表可以具有相同的名称。
+
+> **注意：表名称**
+>
+> 使表名称成为唯一的实际上是几个内容的组合，包括数据库名称和表名称。这意味着尽管不能在相同的数据库中多次使用相同的表名称，但是肯定可以在不同的数据库中重用表名称。
+
+## 应用实例
+
+### Example 01
 
 ```SQL
+--
 SELECT 
   DISTINCT TO_CHAR(OD.ORDERDATE+8/24, 'YYYY-MM-DD') 订单时间, 
   TO_CHAR(OD.ADDDATE+8/24, 'YYYY-MM-DD') 下传时间, 
@@ -89,15 +128,13 @@ WHERE
 如上语句检索了`TRANSLATIONLIST`表中几个项，其中，`TBLNAME`指的是`table name`，存储了该行所属的表名；`CODE`是对应的状态码，`DESCRIPTION`是对应的描述文本（本地语言）。如订单的“外部取消”状态，其对应的`TBLNAME`值为“`ORDERSTATUSSETUP`”，指示了所属的表表名为“`ORDERSTATUSSETUP`”，`CODE`的值为98，`DESCRIPTION`是“外部取消”。  
 检索结果集如下：
 
-|   TBLNAME   |   JOINKEY1    | JOINKEY2 | COLUMNNAME  |  CODE  | DESCRIPTION |
-| :---------: | :-----------: | :------: | :---------: | :----: | :---------: |
-|  CODELKUP   | RTXORDTYPEMAP |   110    | DESCRIPTION |  110   |   BOX订单   |
-| PUTAWAYZONE |    DFZONE     |  DFZONE  |    DESCR    | DFZONE |  待发货区   |
-| PUTAWAYZONE |    JHZONE     |  JHZONE  |    DESCR    | JHZONE | 货品集货区  |
-|  CODELKUP   | RTXCANCELMARK |    98    | DESCRIPTION |   98   |  外部取消   |
-|  CODELKUP   |    RTXPICK    |    B3    | DESCRIPTION |   B3   |  B3拣选面   |
-|  CODELKUP   |    RTXPICK    |    B4    | DESCRIPTION |   B4   |  B4拣选面   |
-|     ……      |      ……       |    ……    |     ……      |   ……   |     ……      |
+| TBLNAME  |   JOINKEY1    | JOINKEY2 | COLUMNNAME  | CODE | DESCRIPTION |
+| :------: | :-----------: | :------: | :---------: | :--: | :---------: |
+| CODELKUP | RTXORDTYPEMAP |   110    | DESCRIPTION | 110  |   BOX订单   |
+| CODELKUP | RTXCANCELMARK |    98    | DESCRIPTION |  98  |  外部取消   |
+| CODELKUP |    RTXPICK    |    B3    | DESCRIPTION |  B3  |  B3拣选面   |
+| CODELKUP |    RTXPICK    |    B4    | DESCRIPTION |  B4  |  B4拣选面   |
+|    ……    |      ……       |    ……    |     ……      |  ……  |     ……      |
 
 子查询中的过滤条件中将`ORDERSTATUSSETUP`表与`TRANSLATIONLIST`表连接，连接条件为`TRANSLATIONLIST.CODE = ORDERSTATUSSETUP.CODE`，因为在`TRANSLATIONLIST`表中，单纯依靠`CODE`无法唯一标识每一行，`TRANSLATIONLIST`表采取多个字段组成复合主键，分别是：`TBLNAME`,`LOCALE`,`JOINKEY1`,`JOINKEY2`,`JOINKEY3`,`JOINKEY4`,`JOINKEY5`,`COLUMNNAME`.所以在子查询中需要借助于连接`ORDERSTATUSSETUP`来唯一确定状态码对应的描述。`ORDERSTATUSSETUP`表项不多，主要信息只有`CODE`和`DESCRIPTION`，其中`CODE`为表的主键，`DESCRIPTION`是英文文本描述。
 子查询的结果集被命名为`STATUS`，结果如下（其中`CODE`源于`ORDERSTATUSSETUP`表，`DESCRIPTION`源于`TRANSLATIONLIST`表）：  
@@ -122,7 +159,7 @@ WHERE
 
 **注**：  
 
-1. `ORDERS`表中的`STATUS`字段表示了出货订单状态，下面是一些对应关系。   
+- `ORDERS`表中的`STATUS`字段表示了出货订单状态，下面是一些对应关系。   
 
 | ORDERS.STATUS |     出货订单状态      |
 | :-----------: | :-------------------: |
@@ -147,7 +184,7 @@ WHERE
 |      29       |        已发放         |
 |      95       |     出货全部完成      |
 
-2. `ORDERS`表的`TYPE`字段表示了订单类型，对应关系如下。  
+- `ORDERS`表的`TYPE`字段表示了订单类型，对应关系如下。  
 
 | ORDERS.TYPE |  出货订单类型   |
 | :---------: | :-------------: |
@@ -164,7 +201,9 @@ WHERE
 |     81      |   采购退货单    |
 |     80      |  预发WMS装箱单  |
 
-## Example 02  
+- 此类代码与说明、描述的对应关系可以通过**INFOR_ENTERPRISE**内菜单栏  **管理→转换→代码转换**  进入查看。
+
+### Example 02  
 
 ```SQL
 SELECT
@@ -206,7 +245,7 @@ GROUP BY
 > 北京时间 = GMT + 8(小时)
 > 故数据库存储中数据项'2019-07-23 16:00:00'即是北京时间'2019-07-24 00:00:00'
 
-## Example 03  
+### Example 03  
 
 ```SQL
 --所有存储位的库存数据
@@ -238,7 +277,7 @@ WHERE
   LLI.QTY > 0
 ```
 
-## Example 04
+### Example 04
 
 ```SQL
 --各订单类型未完成清单
@@ -297,7 +336,7 @@ ORDER BY
 
 - 订单类型（`ORDERS`表中的`TYPE`字段）相对应的中文描述存储在`CODELKUP`表中，该表的主键为`LISTNAME`和`CODE`.  
 
-## Example 05
+### Example 05
 
 ```SQL
 --7月22日B2C订单
@@ -369,7 +408,7 @@ ORDER BY
   TO_CHAR(OD.ADDDATE+8/24, 'YYYY-MM-DD');
 ```
 
-## Example 06
+### Example 06
 
 ```SQL
 SELECT 
@@ -416,7 +455,7 @@ ORDER BY
   C.DESCRIPTION;
 ```
 
-## Example 07
+### Example 07
 
 ```SQL
 --6月25日到7月24日所有的B2C订单详情
@@ -460,7 +499,7 @@ ORDER BY
   OD.RTXSHOPNAME;
 ```
 
-## Example 08
+### Example 08
 
 ```SQL
 --B2C/B2B剩余量
@@ -553,7 +592,7 @@ ORDER BY
 	//返回结果：rld，从最后一个“d”开始 往回截取3个字符
 ```
 
-## Example 09
+### Example 09
 
 ```SQL
 SELECT 
@@ -570,7 +609,7 @@ ORDER BY
 
 - `RTX_SORTNO`是一个视图。
 
-## Example 10
+### Example 10
 
 ```SQL
 --按SKU合计数量
@@ -606,7 +645,7 @@ ORDER BY
   S.STYLE;
 ```
 
-## Example 11
+### Example 11
 
 ```SQL
 SELECT 
@@ -634,7 +673,7 @@ ORDER BY
 - 用户的登录ID和姓名存储在`OPER.E_SSO_USER`表中，其中，`SSO_USER_NAME`为登录账户，`FULLY_QUALIFIED_ID`为用户全名。
 - 比较的时候要注意，PL/SQL的字符串比较是大小写敏感的，因此在多表连接比较操作人ID时应当注意全部转化为大写再进行比较。如如上过滤条件中`UPPER(OE.SSO_USER_NAME)=UPPER(MT.EDITWHO)`这样写。
 
-## Example 12
+### Example 12
 
 ```SQL
 --库存事务页面信息对应ITRN表
@@ -765,7 +804,7 @@ WHERE
   	ORDER BY 1,2
   ```
 
-## Example 13
+### Example 13
 
 ```SQL
 --库存中所有零拣位状态为OK的库存
@@ -786,7 +825,57 @@ ORDER BY
   LLI.SKU;
 ```
 
+### Example 14  
+
+```SQL
+--一段时间内的订单信息
+SELECT
+  DISTINCT TO_CHAR(OD.ORDERDATE+8/24, 'YYYY-MM-DD') 订单时间,
+  TO_CHAR(OD.ADDDATE+8/24, 'YYYY-MM-DD') 下传时间,
+  STATUS.DESCRIPTION 状态,
+  --OD.RTXCANCELMARK 取消标记，
+  OD.ORDERKEY 订单号，
+  OD.EXTERNORDERKEY 外部单号,
+  SUBSTR(OD.EXTERNORDERKEY,3) 截取的外部单号, --去除开头的'OL'/'OW'
+  OD.CARRIERNAME 承运人,
+  OD.RTXEXPRESSKEY 快递单号,
+  OD.TOTALQTY 总量,
+  DECODE(NVL(OD.RTXSHOPNAME, ' '), ' ', OD.C_COMPANY, OD.RTXSHOPNAME) 店铺或收货人名称
+FROM
+  ORDERS OD,
+  (SELECT
+    O.CODE,
+    T.DESCRIPTION
+  FROM
+    ORDERSTATUSSETUP O,
+    TRANSLATIONLIST T
+  WHERE
+    T.CODE = O.CODE AND
+    T.TBLNAME='ORDERSTATUSSETUP' AND
+    T.LOCALE = 'zh' AND
+    T.COLUMNNAME ='DESCRIPTION'
+  ) STATUS
+WHERE
+  OD.TYPE IN ('85','86') AND -- 84 为 拣货装箱单-国内，85 为 线上订单（B2C）
+  NVL(OD.RTXCANCELMARK,' ') = ' ' AND
+  STATUS.CODE = OD.STATUS AND
+  --OD.STATUS NOT IN ('98','99','95') AND
+  TO_CHAR(OD.ORDERDATE+8/24, 'YYYY-MM-DD') >= '2019-06-01' AND
+  TO_CHAR(OD.ORDERDATE+8/24, 'YYYY-MM-DD') <= '2019-07-31'
+  --TO_CHAR(OD.ORDERDATE+8/24, 'YYYY-MM-DD') <= TO_CHAR(SYSDATE,'YYYY-MM-DD')
+ORDER BY
+  TO_CHAR(OD.ORDERDATE+8/24, 'YYYY-MM-DD'),
+  TO_CHAR(OD.ADDDATE+8/24, 'YYYY-MM-DD'),
+  STATUS.DESCRIPTION,
+  OD.ORDERKEY，
+  --OD.RTXCANCELMARK,
+  SUBSTR(OD.EXTERNORDERKEY,3),
+  DECODE(NVL(OD.RTXSHOPNAME, ' '), ' ', OD.C_COMPANY, OD.RTXSHOPNAME);
+```
+
 ## 小工具
+
+### 几条实用的语句
 
 ```SQL
 --在所有表中按字段名搜索字段存在于哪些表中
@@ -810,7 +899,7 @@ FROM
 WHERE 
   CU.CONSTRAINT_NAME = AU.CONSTRAINT_NAME AND
   AU.CONSTRAINT_TYPE = 'P' AND
-  CU.TABLE_NAME = 'SKU'
+  CU.TABLE_NAME = 'SKU';
 ```
 
 ```sql
@@ -824,22 +913,55 @@ WHERE
   T.TABLE_NAME = 'SKU' --AND
   --T.COLUMN_NAME LIKE '%STATUS%' 
 ORDER BY
-  T.COLUMN_NAME
+  T.COLUMN_NAME;
 ```
 
 |          日期说明           |         Oracle语句（假设现在是2018-11-28 11:11:11）          |      返回日期       |
 | :-------------------------: | :----------------------------------------------------------: | :-----------------: |
-|         当月第一天          |         `select trunc(sysdate, ‘mm’)   from   dual`          |      2018-11-1      |
-|         当年第一天          |            `select trunc(sysdate,‘yy’) from dual`            |      2018-1-1       |
-|         当前年月日          |            `select trunc(sysdate,‘dd’) from dual`            |     2018-11-28      |
-| 当前星期的第一天 （星期天） |            `select trunc(sysdate,‘d’) from dual`             |     2018-11-28      |
+|         当月第一天          |            `select trunc(sysdate,'mm') from dual`            |      2018-11-1      |
+|         当年第一天          |            `select trunc(sysdate,'yy') from dual`            |      2018-1-1       |
+|         当前年月日          |            `select trunc(sysdate,'dd') from dual`            |     2018-11-28      |
+| 当前星期的第一天 （星期天） |            `select trunc(sysdate,'d') from dual`             |     2018-11-28      |
 |          当前日期           |              `select trunc(sysdate) from dual`               |     2018-11-28      |
-|   当前时间（准确到小时）    |           `select trunc(sysdate, ‘hh’) from dual`            | 2018-11-28 11:00:00 |
-|   当前时间（准确到分钟）    | `select to_char(trunc(sysdate, ‘mi’),‘yyyy-MM-dd HH:mm:ss’) from dual` | 2018-11-28 11:11:00 |
-|        前一天的日期         |           `select TRUNC(SYSDATE - 1)   from dual`            |     2018-11-27      |
+|   当前时间（准确到小时）    |            `select trunc(sysdate,'hh') from dual`            | 2018-11-28 11:00:00 |
+|   当前时间（准确到分钟）    | `select to_char(trunc(sysdate,'mi'),'yyyy-MM-dd HH:mm:ss') from dual` | 2018-11-28 11:11:00 |
+|        前一天的日期         |             `select TRUNC(SYSDATE-1) from dual`              |     2018-11-27      |
 |       前一个月的日期        |       `select add_months(trunc(sysdate),-1) from dual`       |     2018-10-28      |
 |       后一个月的日期        |       `select add_months(trunc(sysdate),1) from dual`        |     2018-12-28      |
-|        本月最后一天         | `select to_char(last_day(sysdate), ‘yyyy-mm-dd’) from dual`  |     2018-11-30      |
+|        本月最后一天         |  `select to_char(last_day(sysdate),'yyyy-mm-dd') from dual`  |     2018-11-30      |
 
+### 参考链接和常用
 
+1. [Oracle中union all、union 和order by一起使用的解决方法](https://blog.csdn.net/luzaijx/article/details/83310472)
 
+2. [oracle 根据字段名查找表](https://blog.csdn.net/u012382571/article/details/49074505)
+
+3. [Oracle获取日期大全（当月的第一天/后一天/上一天/最后一天/上个月这一天）](https://blog.csdn.net/moshowgame/article/details/84581821)
+
+4. [ORACLE制作表时的“小计”和“合计” （ROLLUP）](https://blog.csdn.net/shcqupc/article/details/51037515)
+
+5. [PL/SQL的TO_CHAR（）与TO_DATE（）](https://www.cnblogs.com/lmfeng/archive/2011/08/16/2140737.html)
+
+6. [oracle trunc()函数的用法——日期、数字](https://blog.csdn.net/qq_30934019/article/details/80611489)
+
+7. [oracle中实现截取字符串（substr）、查找字符串位置（instr）、替换字符串（replace）](https://blog.csdn.net/housonglin1213/article/details/50344895)
+
+8. [【ORACLE】Oracle提高篇之DECODE](https://blog.csdn.net/sdut406/article/details/82795585)
+
+9. [解决Oracle数据库ORA-28001](https://my.oschina.net/NamiZone/blog/1840232)
+
+10. [【SQL】两个带order by查询进行union all报ORA-00933错误的解决方法](https://blog.csdn.net/zhx624/article/details/20373785)
+
+11. [Oracle中查看所有表和字段以及表注释.字段注释](https://www.cnblogs.com/xusir/p/3214714.html)
+
+12. [Oracle中的rowid](https://www.cnblogs.com/xqzt/p/4449184.html)
+
+13. [数据库中乐观锁、悲观锁、共享锁和排它锁的理解](https://www.liangzl.com/get-article-detail-1144.html)
+
+14. [查询oracle表的信息（表，字段，约束，索引）](https://www.cnblogs.com/furenjian/articles/2907688.html)
+
+15.  [《Oracle PL/SQL必知必会》](https://book.douban.com/subject/27004312/)
+
+    <div style="text-align: right"> 柳明 </div>
+
+<div style="text-align: right"> 2019.08.03 </div>
