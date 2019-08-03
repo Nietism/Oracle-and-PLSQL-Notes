@@ -18,7 +18,7 @@
 >
 > 用于存储有组织的数据的容器（通常是文件或文件集）。
 
-![Database](C:\Users\Administrator\Pictures\TIM截图20190803132914.png)
+![Database](https://upload-images.jianshu.io/upload_images/6260156-63f5f5c8347f83fb.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/192)
 
 > **混淆**
 >
@@ -46,7 +46,7 @@
 >
 > WAREHOUSE2.ORDERS
 
-![表示例](C:\Users\Administrator\Pictures\海外仓订单汇总分仓管理系统 ER图.png)
+![表示例](https://upload-images.jianshu.io/upload_images/6260156-ed51a4aa552e85ab.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1000)
 
 ##### 1.1.3 列和数据类型
 
