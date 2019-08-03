@@ -1,6 +1,6 @@
 # 学习笔记
 
-![Oracle 图标](https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1564591842751&di=3cb0b9bc69df78d08816abe6101c7fc1&imgtype=0&src=http%3A%2F%2Fwww.soomal.com%2Fimages%2Fdoc%2F20110713%2F00012096.jpg "Oracle logo")
+![Oracle 图标](https://appwk.baidu.com/naapi/doc/view?ih=168&o=png_6_0_0_137_225_293_91_918_1188&iw=541&ix=0&iy=0&aimw=541&rn=1&doc_id=42e8475702020740bf1e9b25&pn=1&sign=78ace33bf5057fc5fc3dc978d2a6e4c3&type=1&app_ver=2.9.8.2&ua=bd_800_800_IncredibleS_2.9.8.2_2.3.7&bid=1&app_ua=IncredibleS&uid=&cuid=&fr=3&Bdi_bear=WIFI&from=3_10000&bduss=&pid=1&screen=800_800&sys_ver=2.3.7 "Oracle logo")
 
 ## 基础知识
 
@@ -12,9 +12,13 @@
 
 &#160; &#160; &#160; &#160;**数据库**（Database）指<u>以某种有组织的方式存储的数据集合</u>。可以将它看成一个档案柜，档案柜只是存储数据的物理位置，而不管数据是什么以及它们是怎样组织的。
 
+
+
 > **数据库**
 >
->  用于存储有组织的数据的容器（通常是文件或文件集）。
+> 用于存储有组织的数据的容器（通常是文件或文件集）。
+
+![Database](C:\Users\Administrator\Pictures\TIM截图20190803132914.png)
 
 > **混淆**
 >
@@ -36,14 +40,59 @@
 
 > **注意：表名称**
 >
-> 使表名称成为唯一的实际上是几个内容的组合，包括数据库名称和表名称。这意味着尽管不能在相同的数据库中多次使用相同的表名称，但是肯定可以在不同的数据库中重用表名称。
+> 使表名称成为唯一的实际上是几个内容的组合，包括数据库名称和表名称。这意味着尽管不能在相同的数据库中多次使用相同的表名称，但是肯定可以在不同的数据库中重用表名称。当需要在同一个语句中引用不同数据库中同名的表，可以使用**完全限定的表名称**：
+>
+> WAREHOUSE1.ORDERS
+>
+> WAREHOUSE2.ORDERS
+
+![表示例](C:\Users\Administrator\Pictures\海外仓订单汇总分仓管理系统 ER图.png)
+
+##### 1.1.3 列和数据类型
+
+&#160; &#160; &#160; &#160;表由列组成，列<u>包含表中特定的信息</u>。
+
+> **列**
+>
+> 表中的单个字段。所有的表都由一列或多列组成。
+
+&#160; &#160; &#160; &#160;理解列的最佳方式是把数据库想象成网格，它有点像电子数据表，网格中的每一列都包含特定的信息。例如，在顾客表中，一列包含顾客编号，另一列包含顾客名字，而地址、城市和邮政编码都存储在它们各自的列中。
+
+&#160; &#160; &#160; &#160;数据库中的每一列都具有一种关联的数据类型，它定义了列中可以包含什么类型的数据。例如，如果列将包含数字（也许是订单中的商品数量），那么数据类型将是一种数值数据类型。如果列将包含日期、文本、注释、货币金额等，将使用相应的数据类型来指定它们。
+
+> **数据类型**
+>
+> 允许的数据的类型。每个表列都具有一种与之关联的数据类型，用以限制（或允许）在该列中存储特定的数据。
+
+&#160; &#160; &#160; &#160;数据类型限制了列可以存储的数据的类型（例如，防止把字母字符输入到数值字段当中）。数据类型的使用还有助于正确地对数据进行排序，并且在优化磁盘使用方面起着重要作用。因此，在创建表时要特别注意选择适当的数据类型。
+
+##### 1.1.4  行
+
+&#160; &#160; &#160; &#160;表中的数据存储在行中；保存的每条记录都存储在它自己的行中。同样，把表想象成电子数据表样式的网格，网格中的垂直列就是表列，水平行就是表行。
+
+&#160; &#160; &#160; &#160;例如，顾客表可能每行存储一位顾客的信息。表中的行数就是其中的记录数。
+
+> **行**
+>
+> 表中的记录。
+
+> 在提及**行**（Row）时经常也把它们称为数据库**记录**（Record）。一般而言，可以互换使用这两个术语。
+
+##### 1.1.5 主键
+
+&#160; &#160; &#160; &#160;表中的每一行都应该有某一列（或某几列组成的列集合）来唯一地标识它。包含顾客信息的表可能为此使用顾客编号列，而包含订单信息的表则可能使用订单号。
+
+> **主键**（Primary key）
+>
+> 其值唯一地标识表中的每一行的列（或列集合）。
+
+
 
 ## 应用实例
 
 ### Example 01
 
 ```SQL
---
 SELECT 
   DISTINCT TO_CHAR(OD.ORDERDATE+8/24, 'YYYY-MM-DD') 订单时间, 
   TO_CHAR(OD.ADDDATE+8/24, 'YYYY-MM-DD') 下传时间, 
@@ -70,8 +119,8 @@ WHERE
   STATUS.CODE = OD.STATUS AND 
   NVL(OD.RTXCANCELMARK,' ') = ' ' AND 
   OD.STATUS < '95'
-  --AND TO_CHAR(OD.ORDERDATE+8/24, 'YYYY-MM-DD') <= '2019-07-03'
-  --AND TO_CHAR(OD.ORDERDATE+8/24, 'YYYY-MM-DD') >= '2019-06-25'
+  AND TO_CHAR(OD.ORDERDATE+8/24, 'YYYY-MM-DD') <= '2019-07-03'
+  AND TO_CHAR(OD.ORDERDATE+8/24, 'YYYY-MM-DD') >= '2019-06-25'
 GROUP BY 
   TO_CHAR(OD.ORDERDATE+8/24, 'YYYY-MM-DD'), 
   TO_CHAR(OD.ADDDATE+8/24, 'YYYY-MM-DD'), 
@@ -873,6 +922,33 @@ ORDER BY
   DECODE(NVL(OD.RTXSHOPNAME, ' '), ' ', OD.C_COMPANY, OD.RTXSHOPNAME);
 ```
 
+### Example 15
+
+```sql
+--有库存但未设置分配库位货品
+SELECT 
+  SL.SKU 货品,
+  SL.LOC 库位,
+  SL.QTY 现有量,
+  SL.QTYALLOCATED 分配量,
+  SL.QTYPICKED 拣货量,
+  (SL.QTY - SL.QTYALLOCATED - SL.QTYPICKED) 可用量 
+FROM 
+  LOC L LEFT JOIN SKUXLOC SL 
+  ON L.LOC = SL.LOC 
+WHERE 
+  L.LOCATIONTYPE = 'PICK' AND 
+  L.LOCATIONCATEGORY = 'ZEROPICK' AND 
+  SL.LOCATIONTYPE = 'OTHER' AND 
+  SL.QTY > 0
+```
+
+> **Left Join**：即**左连接**，是以左表为基础，根据ON后给出的两表的条件将两表连接起来。结果会<u>将左表所有的查询信息列出，而右表只列出ON后条件与左表满足的部分</u>。左连接全称为**左外连接**，是外连接的一种。
+>
+> **Right Join**：即**右连接**，是以右表为基础，根据ON后给出的两表的条件将两表连接起来。结果会<u>将右表所有的查询信息列出，而左表只列出ON后条件与右表满足的部分</u>。右连接全称为**右外连接**，是外连接的一种。
+>
+> **Inner Join**：即**内连接**，同时将两表作为参考对象，根据ON后给出的两表的条件将两表连接起来。结果则是<u>两表同时满足ON后的条件的部分才会列出</u>。
+
 ## 小工具
 
 ### 几条实用的语句
@@ -933,34 +1009,22 @@ ORDER BY
 ### 参考链接和常用
 
 1. [Oracle中union all、union 和order by一起使用的解决方法](https://blog.csdn.net/luzaijx/article/details/83310472)
-
 2. [oracle 根据字段名查找表](https://blog.csdn.net/u012382571/article/details/49074505)
-
 3. [Oracle获取日期大全（当月的第一天/后一天/上一天/最后一天/上个月这一天）](https://blog.csdn.net/moshowgame/article/details/84581821)
-
 4. [ORACLE制作表时的“小计”和“合计” （ROLLUP）](https://blog.csdn.net/shcqupc/article/details/51037515)
-
 5. [PL/SQL的TO_CHAR（）与TO_DATE（）](https://www.cnblogs.com/lmfeng/archive/2011/08/16/2140737.html)
-
 6. [oracle trunc()函数的用法——日期、数字](https://blog.csdn.net/qq_30934019/article/details/80611489)
-
 7. [oracle中实现截取字符串（substr）、查找字符串位置（instr）、替换字符串（replace）](https://blog.csdn.net/housonglin1213/article/details/50344895)
-
 8. [【ORACLE】Oracle提高篇之DECODE](https://blog.csdn.net/sdut406/article/details/82795585)
-
 9. [解决Oracle数据库ORA-28001](https://my.oschina.net/NamiZone/blog/1840232)
-
 10. [【SQL】两个带order by查询进行union all报ORA-00933错误的解决方法](https://blog.csdn.net/zhx624/article/details/20373785)
-
 11. [Oracle中查看所有表和字段以及表注释.字段注释](https://www.cnblogs.com/xusir/p/3214714.html)
-
 12. [Oracle中的rowid](https://www.cnblogs.com/xqzt/p/4449184.html)
-
 13. [数据库中乐观锁、悲观锁、共享锁和排它锁的理解](https://www.liangzl.com/get-article-detail-1144.html)
-
 14. [查询oracle表的信息（表，字段，约束，索引）](https://www.cnblogs.com/furenjian/articles/2907688.html)
+15. [《Oracle PL/SQL必知必会》](https://book.douban.com/subject/27004312/)
+16. [SQL——左连接（Left join）、右连接（Right join）、内连接（Inner join）](https://blog.csdn.net/qq_40604853/article/details/79945558)
+17. [深入理解SQL的四种连接-左外连接、右外连接、内连接、全连接](https://www.cnblogs.com/yyjie/p/7788413.html)
 
-15.  [《Oracle PL/SQL必知必会》](https://book.douban.com/subject/27004312/)
 
-<div style="text-align: right"> 柳明 </div>
-<div style="text-align: right"> 2019.08.03 </div>
+
